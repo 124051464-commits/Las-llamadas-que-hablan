@@ -86,26 +86,21 @@ def cargar_respuestas_cuestionario():
 init_database()
 # ==================== FIN CONFIGURACIÓN BASE DE DATOS ====================
 
-1. Configuración de la página (Debe ser lo primero)
-st.set_page_config(page_title="Análisis Línea Mujeres", layout="wide")
-
-# 2. Función para cargar datos (Corregida sin errores de sintaxis)
 @st.cache_data
 def load_data():
     try:
-        # Intentamos abrir el zip que tienes en el repo
+        # Usamos compression="zip" para que lea el archivo pesado que subiste
         df = pd.read_csv("linea-mujeres-cdmx.zip", compression="zip", encoding="latin1")
         return df
     except Exception as e:
-        st.error(f"Error al abrir el archivo ZIP: {e}")
+        st.error(f"Error critico al cargar el archivo ZIP: {e}")
         return None
 
-# 3. Título de la App
+# CUERPO PRINCIPAL DE LA APP
 st.title("📞 Análisis de la Línea Mujeres CDMX")
-st.markdown("---")
+st.write("Visualización de datos de violencia contra la mujer")
 
-# 4. Ejecución de la carga
-df = load_data()
+data = load_data()
 
 # ==================== FILTROS ====================
 st.sidebar.header("Filtros")
