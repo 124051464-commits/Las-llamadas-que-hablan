@@ -100,7 +100,7 @@ def load_data():
 st.title("📞 Análisis de la Línea Mujeres CDMX")
 st.write("Visualización de datos de violencia contra la mujer")
 
-data = load_data()
+df = load_data()
 
 # ==================== FILTROS ====================
 st.sidebar.header("Filtros")
