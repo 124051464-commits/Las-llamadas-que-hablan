@@ -84,23 +84,54 @@ def cargar_respuestas_cuestionario():
 
 # Inicializar base de datos
 init_database()
-# ==================== FIN CONFIGURACIÓN BASE DE DATOS ====================
+import streamlit as st
+import pandas as pd
 
+# 1. Configuración básica
+st.set_page_config(page_title="Dashboard Línea Mujeres", layout="wide")
+
+# 2. Carga de datos segura
 @st.cache_data
 def load_data():
     try:
-        # Usamos compression="zip" para que lea el archivo pesado que subiste
+        # Cargamos el zip que tienes en GitHub
         df = pd.read_csv("linea-mujeres-cdmx.zip", compression="zip", encoding="latin1")
         return df
     except Exception as e:
-        st.error(f"Error critico al cargar el archivo ZIP: {e}")
+        st.error(f"Error al cargar el archivo: {e}")
         return None
 
-# CUERPO PRINCIPAL DE LA APP
-st.title("📞 Análisis de la Línea Mujeres CDMX")
-st.write("Visualización de datos de violencia contra la mujer")
+# 3. Interfaz Principal
+st.title("📊 Análisis de Llamadas - Línea Mujeres")
 
 df = load_data()
+
+if df is not None:
+    st.success("¡Datos cargados correctamente!")
+    
+    # --- BUSCADOR DINÁMICO DE COLUMNAS ---
+    # Esto evita el NameError o KeyError porque busca lo que SI existe
+    cols = df.columns.tolist()
+    
+    st.sidebar.header("Explorador de Datos")
+    col_interes = st.sidebar.selectbox("Selecciona una columna para ver un resumen:", cols)
+    
+    # Mostrar métricas
+    c1, c2 = st.columns(2)
+    c1.metric("Total de registros", f"{len(df):,}")
+    c2.metric("Total de columnas", len(cols))
+    
+    # Mostrar la tabla
+    st.subheader("Vista previa de la base de datos")
+    st.dataframe(df.head(50))
+    
+    # Gráfica automática basada en la columna seleccionada
+    st.subheader(f"Distribución de: {col_interes}")
+    top_values = df[col_interes].value_counts().head(10)
+    st.bar_chart(top_values)
+
+else:
+    st.error("No se encontró el archivo 'linea-mujeres-cdmx.zip' en tu repositorio.")
 
 # ==================== FILTROS ====================
 st.sidebar.header("Filtros")
