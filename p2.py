@@ -86,12 +86,18 @@ def cargar_respuestas_cuestionario():
 init_database()
 # ==================== FIN CONFIGURACIÓN BASE DE DATOS ====================
 
-@st.cache_data
+@@st.cache_data # Esto ayuda a que tu app no recargue el archivo cada vez
 def load_data():
-    df = pd.read_csv("linea-mujeres-cdmx.csv", encoding="latin1")
-    df.columns = df.columns.str.lower().str.strip()
-    return df
+    # Cambiamos la ruta al nombre exacto de tu archivo .zip
+    # y añadimos el parámetro compression='zip'
+    try:
+        df = pd.read_csv("linea-mujeres-cdmx.zip", compression="zip", encoding="latin1")
+        return df
+    except Exception as e:
+        st.error(f"Error al cargar el archivo: {e}")
+        return None
 
+# Luego, donde llamas a la función:
 df = load_data()
 
 # ==================== FILTROS ====================
