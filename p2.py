@@ -86,18 +86,25 @@ def cargar_respuestas_cuestionario():
 init_database()
 # ==================== FIN CONFIGURACIÓN BASE DE DATOS ====================
 
-@@st.cache_data # Esto ayuda a que tu app no recargue el archivo cada vez
+1. Configuración de la página (Debe ser lo primero)
+st.set_page_config(page_title="Análisis Línea Mujeres", layout="wide")
+
+# 2. Función para cargar datos (Corregida sin errores de sintaxis)
+@st.cache_data
 def load_data():
-    # Cambiamos la ruta al nombre exacto de tu archivo .zip
-    # y añadimos el parámetro compression='zip'
     try:
+        # Intentamos abrir el zip que tienes en el repo
         df = pd.read_csv("linea-mujeres-cdmx.zip", compression="zip", encoding="latin1")
         return df
     except Exception as e:
-        st.error(f"Error al cargar el archivo: {e}")
+        st.error(f"Error al abrir el archivo ZIP: {e}")
         return None
 
-# Luego, donde llamas a la función:
+# 3. Título de la App
+st.title("📞 Análisis de la Línea Mujeres CDMX")
+st.markdown("---")
+
+# 4. Ejecución de la carga
 df = load_data()
 
 # ==================== FILTROS ====================
