@@ -87,51 +87,48 @@ init_database()
 import streamlit as st
 import pandas as pd
 
-# 1. Configuración básica
-st.set_page_config(page_title="Dashboard Línea Mujeres", layout="wide")
+# 1. Configuración de página
+st.set_page_config(page_title="Dashboard Optimizado", layout="wide")
 
-# 2. Carga de datos segura
+st.title("📊 Análisis Línea Mujeres CDMX")
+
+# 2. Función de carga optimizada (Para evitar que se caiga la RAM)
 @st.cache_data
-def load_data():
+def load_data_optimized():
     try:
-        # Cargamos el zip que tienes en GitHub
-        df = pd.read_csv("linea-mujeres-cdmx.zip", compression="zip", encoding="latin1")
+        # Leemos solo una parte o usamos tipos de datos más ligeros
+        df = pd.read_csv(
+            "linea-mujeres-cdmx.zip", 
+            compression="zip", 
+            encoding="latin1",
+            nrows=50000, # <--- Limitamos a 50k filas para que no se caiga la web
+            low_memory=True
+        )
         return df
     except Exception as e:
-        st.error(f"Error al cargar el archivo: {e}")
+        st.error(f"Error al cargar: {e}")
         return None
 
-# 3. Interfaz Principal
-st.title("📊 Análisis de Llamadas - Línea Mujeres")
-
-df = load_data()
+df = load_data_optimized()
 
 if df is not None:
-    st.success("¡Datos cargados correctamente!")
+    st.success(f"✅ App estable. Visualizando las primeras {len(df)} llamadas.")
     
-    # --- BUSCADOR DINÁMICO DE COLUMNAS ---
-    # Esto evita el NameError o KeyError porque busca lo que SI existe
-    cols = df.columns.tolist()
+    # Métricas simples
+    st.metric("Total registros cargados", len(df))
     
-    st.sidebar.header("Explorador de Datos")
-    col_interes = st.sidebar.selectbox("Selecciona una columna para ver un resumen:", cols)
+    # Selector de columnas para explorar
+    col_choice = st.selectbox("Selecciona una columna para analizar:", df.columns)
     
-    # Mostrar métricas
-    c1, c2 = st.columns(2)
-    c1.metric("Total de registros", f"{len(df):,}")
-    c2.metric("Total de columnas", len(cols))
+    # Gráfico de barras simple
+    top_10 = df[col_choice].value_counts().head(10)
+    st.bar_chart(top_10)
     
-    # Mostrar la tabla
-    st.subheader("Vista previa de la base de datos")
-    st.dataframe(df.head(50))
-    
-    # Gráfica automática basada en la columna seleccionada
-    st.subheader(f"Distribución de: {col_interes}")
-    top_values = df[col_interes].value_counts().head(10)
-    st.bar_chart(top_values)
-
+    # Mostrar tabla
+    st.subheader("Muestra de datos")
+    st.dataframe(df.head(20))
 else:
-    st.error("No se encontró el archivo 'linea-mujeres-cdmx.zip' en tu repositorio.")
+    st.info("Esperando archivo...")
 
 # ==================== FILTROS ====================
 st.sidebar.header("Filtros")
